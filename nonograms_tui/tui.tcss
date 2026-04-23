@@ -1,0 +1,73 @@
+/* Nonograms TUI — dark palette, blue/amber highlights. */
+
+Screen {
+    background: #0a0a0d;
+    color: #e4e2dc;
+}
+
+#body { height: 1fr; }
+
+#board-col {
+    width: 3fr;
+    height: 1fr;
+}
+
+#side {
+    width: 1fr;
+    min-width: 30;
+    height: 1fr;
+}
+
+#flash-bar {
+    height: 1;
+    padding: 0 1;
+    background: #131a24;
+    color: #8fb8ff;
+}
+
+BoardView {
+    height: 1fr;
+    border: round #3a5a8a;
+    border-title-color: #8fb8ff;
+    border-title-style: bold;
+    background: #000;
+    scrollbar-color: #3a5a8a #0a0a0d;
+    scrollbar-color-hover: #6b8ec8 #0a0a0d;
+    scrollbar-size: 1 1;
+}
+
+#log {
+    height: 8;
+    border: round #3a5a8a;
+    border-title-color: #8fb8ff;
+    border-title-style: bold;
+    background: #0b0b0d;
+}
+
+StatusPanel, ControlsPanel {
+    border: round #3a5a8a;
+    border-title-color: #8fb8ff;
+    border-title-style: bold;
+    padding: 0 1;
+    background: #0e0f13;
+}
+
+StatusPanel  { height: 10; }
+ControlsPanel { height: 1fr; }
+
+Header {
+    background: #131a24;
+    color: #8fb8ff;
+    text-style: bold;
+}
+
+Footer {
+    background: #131a24;
+    color: #8fb8ff;
+}
+
+Footer > .footer--key {
+    background: #22304a;
+    color: #c0d8ff;
+    text-style: bold;
+}

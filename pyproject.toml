@@ -1,0 +1,18 @@
+[project]
+name = "nonograms-tui"
+version = "0.1.0"
+description = "Terminal-native Nonograms (Picross) with hint solver"
+requires-python = ">=3.10"
+dependencies = [
+    "textual>=0.80,<10",
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["nonograms_tui"]
+
+[tool.setuptools.package-data]
+nonograms_tui = ["tui.tcss"]
