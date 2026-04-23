@@ -1,4 +1,4 @@
-.PHONY: all bootstrap venv run test test-only clean
+.PHONY: all bootstrap venv run test test-only test-solver perf clean
 
 VENDOR := vendor/nonogram-db
 
@@ -16,7 +16,7 @@ venv: .venv/bin/python
 	.venv/bin/pip install -e .
 
 run: venv
-	.venv/bin/python nonograms.py
+	.venv/bin/python nonograms.py $(ARGS)
 
 test: venv
 	.venv/bin/python -m tests.qa
@@ -26,6 +26,9 @@ test-only: venv
 
 test-solver: venv
 	.venv/bin/python -m tests.solver_test
+
+perf: venv
+	.venv/bin/python -m tests.perf
 
 clean:
 	rm -rf .venv **/__pycache__
