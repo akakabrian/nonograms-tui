@@ -1,20 +1,20 @@
 == Nonograms TUI — perf baseline ==
 
-  solver._line_propagate (clues=4, len=30)    mean   17.061 ms   median   16.655 ms
+  solver._line_propagate (clues=4, len=30)    mean   17.207 ms   median   16.844 ms
 
   [webpbn-1]  5x10  gutter row_w=4 col_h=3
-  render_line (middle row)                    mean    0.074 ms   median    0.068 ms
-  full frame (all rows)                       mean    0.517 ms   median    0.410 ms
-  _row_satisfied × all rows                   mean    0.037 ms   median    0.037 ms
+  render_line (middle row)                    mean    0.027 ms   median    0.026 ms
+  full frame (all rows)                       mean    0.400 ms   median    0.398 ms
+  _row_satisfied × all rows                   mean    0.035 ms   median    0.035 ms
 
   [gnonograms-ubuntu]  35x35  gutter row_w=7 col_h=4
-  render_line (middle row)                    mean    0.224 ms   median    0.265 ms
-  full frame (all rows)                       mean    5.490 ms   median    5.427 ms
-  _row_satisfied × all rows                   mean    0.492 ms   median    0.491 ms
+  render_line (middle row)                    mean    0.097 ms   median    0.092 ms
+  full frame (all rows)                       mean    5.629 ms   median    5.594 ms
+  _row_satisfied × all rows                   mean    0.480 ms   median    0.477 ms
 
   solver.solve end-to-end (ms):
     webpbn-1                              0.55 ms
-    webpbn-26167                          1.38 ms
-    gnonograms-spade                      4.25 ms
-    gnonograms-ubuntu                   808.75 ms
-    gnonograms-wikimedia                459.43 ms
+    webpbn-26167                          1.78 ms
+    gnonograms-spade                      4.24 ms
+    gnonograms-ubuntu                   812.17 ms
+    gnonograms-wikimedia                465.76 ms

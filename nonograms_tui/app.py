@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import random
 import time
-from dataclasses import dataclass
 
 from rich.segment import Segment
 from rich.style import Style
@@ -20,7 +19,6 @@ from textual.scroll_view import ScrollView
 from textual.strip import Strip
 from textual.widgets import Footer, Header, RichLog, Static
 
-from . import board as board_mod
 from . import solver
 from .board import Board, CROSSED, EMPTY, FILLED
 from .puzzles import Puzzle, find_puzzle, list_puzzles
@@ -210,11 +208,10 @@ class BoardView(ScrollView):
             # for silent EMPTY here since the state enum is tiny and
             # dev will notice board logic issues fast.
             glyph = GLYPH.get(state, GLYPH[EMPTY])
-            # 5-cell gridline accent: thicken the left edge of the cell
-            # that crosses a 5-block boundary by using a slightly
-            # brighter background.
-            is_gridline_x = (x > 0 and x % 5 == 0)
-            is_gridline_y = (tile_y > 0 and tile_y % 5 == 0)
+            # 5-cell gridline accent was considered but disabled — a pipe
+            # between cells breaks the 2-char alignment and a tinted cell
+            # background conflicts with the cursor/hint styles. The clue
+            # gutter spacing already conveys the 5-block rhythm.
             if state == FILLED:
                 cell_style = STYLE_FILLED
             elif state == CROSSED:
@@ -236,13 +233,6 @@ class BoardView(ScrollView):
                 cell_style = STYLE_CURSOR
                 # Preserve glyph (so the cursor cell still shows state).
             segments.append(Segment(glyph, cell_style))
-            # Gridline accent drawn as a thin vertical bar right after
-            # every 5th cell (except the last column).
-            if is_gridline_x and x != p.width - 1 and False:
-                # Disabled: the 2-char-wide cell already visually
-                # separates; adding a pipe breaks alignment. Keep the
-                # gridline cue via the clue-digit spacing instead.
-                pass
 
         total = self._total_width()
         if total < width:

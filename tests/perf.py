@@ -21,9 +21,8 @@ from pathlib import Path
 from statistics import mean, median
 
 from nonograms_tui import solver
-from nonograms_tui.app import BoardView, NonogramsApp
-from nonograms_tui.board import FILLED, Board
-from nonograms_tui.puzzles import find_puzzle, list_puzzles
+from nonograms_tui.app import NonogramsApp
+from nonograms_tui.puzzles import find_puzzle
 
 
 OUT = Path(__file__).resolve().parent / "out"

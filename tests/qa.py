@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any, Awaitable, Callable
 
 from nonograms_tui import solver
-from nonograms_tui.app import BoardView, NonogramsApp
+from nonograms_tui.app import NonogramsApp
 from nonograms_tui.board import CROSSED, EMPTY, FILLED, Board
 from nonograms_tui.puzzles import Puzzle, find_puzzle, list_puzzles
 
@@ -378,7 +378,6 @@ async def s_status_panel_updates(app, pilot):
 
 async def s_wide_puzzle_gutter_fits(app, pilot):
     """Loading a puzzle with long clue lists must not crash rendering."""
-    from nonograms_tui.puzzles import find_puzzle
     p = find_puzzle("gnonograms-wikimedia")  # 39x38 — tall clue gutter
     if p is None:
         return  # DB missing this puzzle; harmless skip
@@ -396,7 +395,6 @@ async def s_empty_row_clue_renders_zero(app, pilot):
     crash on max() of empty iterator)."""
     # Webpbn-1 has rows with clues; synthesise a temporary puzzle where
     # one row is empty.
-    from nonograms_tui.puzzles import Puzzle
     p = app.board.puzzle
     rows = [list(r) for r in p.rows]
     rows[0] = []  # force an empty-clue row
