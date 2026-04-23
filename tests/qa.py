@@ -376,6 +376,43 @@ async def s_status_panel_updates(app, pilot):
     assert after == before + 1, f"progress {before} → {after}"
 
 
+async def s_wide_puzzle_gutter_fits(app, pilot):
+    """Loading a puzzle with long clue lists must not crash rendering."""
+    from nonograms_tui.puzzles import find_puzzle
+    p = find_puzzle("gnonograms-wikimedia")  # 39x38 — tall clue gutter
+    if p is None:
+        return  # DB missing this puzzle; harmless skip
+    app._setup_for(Board(p))
+    await pilot.pause()
+    # The column-clue gutter height should exceed that of the default puzzle.
+    assert app.board_view._col_clue_height >= 3
+    # First gutter row must still render cleanly.
+    strip = app.board_view.render_line(0)
+    assert len(list(strip)) > 0
+
+
+async def s_empty_row_clue_renders_zero(app, pilot):
+    """A row whose clue list is [] should render '0' in the gutter (not
+    crash on max() of empty iterator)."""
+    # Webpbn-1 has rows with clues; synthesise a temporary puzzle where
+    # one row is empty.
+    from nonograms_tui.puzzles import Puzzle
+    p = app.board.puzzle
+    rows = [list(r) for r in p.rows]
+    rows[0] = []  # force an empty-clue row
+    empty_p = Puzzle(
+        slug="test-empty", title="empty-row-test", author="qa",
+        width=p.width, height=p.height,
+        rows=rows, columns=[list(c) for c in p.columns],
+        goal=p.goal,
+    )
+    app._setup_for(Board(empty_p))
+    await pilot.pause()
+    strip = app.board_view.render_line(app.board_view._col_clue_height)
+    text = "".join(seg.text for seg in list(strip))
+    assert "0" in text, f"empty-row gutter missing '0': {text!r}"
+
+
 async def s_solver_agrees_with_board_on_win(app, pilot):
     """End-to-end: the solver's goal + the board's goal must agree. This
     prevents the class of bug where hints would disagree with win
@@ -415,6 +452,8 @@ SCENARIOS: list[Scenario] = [
     Scenario("retarget_board_switches_puzzle", s_retarget_board_switches_puzzle),
     Scenario("log_collapses_duplicates", s_log_collapses_duplicates),
     Scenario("status_panel_updates", s_status_panel_updates),
+    Scenario("wide_puzzle_gutter_fits", s_wide_puzzle_gutter_fits),
+    Scenario("empty_row_clue_renders_zero", s_empty_row_clue_renders_zero),
     Scenario("solver_agrees_with_board_on_win", s_solver_agrees_with_board_on_win),
 ]
 
