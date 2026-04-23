@@ -519,17 +519,19 @@ class NonogramsApp(App):
     BINDINGS = [
         Binding("q", "quit", "Quit"),
         Binding("question_mark", "help", "Help"),
-        # Grid navigation (priority so the ScrollView doesn't eat arrows).
-        Binding("up",    "move(0,-1)", "↑", show=False, priority=True),
-        Binding("down",  "move(0,1)",  "↓", show=False, priority=True),
-        Binding("left",  "move(-1,0)", "←", show=False, priority=True),
-        Binding("right", "move(1,0)",  "→", show=False, priority=True),
-        Binding("k", "move(0,-1)", show=False, priority=True),
-        Binding("j", "move(0,1)",  show=False, priority=True),
+        # Grid navigation. No priority=True — Textual's App bindings fire before
+        # focused-widget key handling, so the ScrollView does not eat these keys.
+        # Keeping priority=False lets modal screens see and handle these keys too.
+        Binding("up",    "move(0,-1)", "↑", show=False),
+        Binding("down",  "move(0,1)",  "↓", show=False),
+        Binding("left",  "move(-1,0)", "←", show=False),
+        Binding("right", "move(1,0)",  "→", show=False),
+        Binding("k", "move(0,-1)", show=False),
+        Binding("j", "move(0,1)",  show=False),
         Binding("h_move", "move(-1,0)", show=False),  # 'h' is hint — see below
         Binding("l_move", "move(1,0)",  show=False),
-        Binding("space", "fill", "fill", priority=True),
-        Binding("enter", "fill", show=False, priority=True),
+        Binding("space", "fill", "fill"),
+        Binding("enter", "fill", show=False),
         Binding("x", "cross", "cross"),
         Binding("c", "clear_cell", "clear"),
         Binding("h", "hint", "hint"),
@@ -654,7 +656,14 @@ class NonogramsApp(App):
 
     # --- actions --------------------------------------------------------
 
+    def _is_main_screen(self) -> bool:
+        """True when no modal is on top — priority bindings should only fire
+        on the main game screen."""
+        return len(self.screen_stack) == 1
+
     def action_move(self, dx: str, dy: str) -> None:
+        if not self._is_main_screen():
+            return
         b = self.board
         nx = max(0, min(b.puzzle.width - 1, self.board_view.cursor_x + int(dx)))
         ny = max(0, min(b.puzzle.height - 1, self.board_view.cursor_y + int(dy)))
@@ -663,6 +672,8 @@ class NonogramsApp(App):
         self._update_flash()
 
     def action_fill(self) -> None:
+        if not self._is_main_screen():
+            return
         x, y = self.board_view.cursor_x, self.board_view.cursor_y
         self.board.toggle_fill(x, y)
         self.board_view.clear_hints()

@@ -272,6 +272,35 @@ async def s_picker_opens(app, pilot):
     assert len(app.screen_stack) == 1, "picker did not close"
 
 
+async def s_help_space_dismisses(app, pilot):
+    """HelpScreen must dismiss on space (regression: App priority binding stole it)."""
+    await pilot.press("question_mark")
+    await pilot.pause()
+    assert len(app.screen_stack) >= 2, "help screen did not open"
+    await pilot.press("space")
+    await pilot.pause()
+    assert len(app.screen_stack) == 1, (
+        "space did not dismiss help — app priority binding stealing key?"
+    )
+
+
+async def s_picker_down_navigates(app, pilot):
+    """Picker down-arrow must move selection (regression: App priority move binding stole it)."""
+    await pilot.press("L")
+    await pilot.pause()
+    assert len(app.screen_stack) >= 2, "picker did not open"
+    picker = app.screen
+    sel_before = picker.selected  # type: ignore[union-attr]
+    await pilot.press("down")
+    await pilot.pause()
+    sel_after = picker.selected  # type: ignore[union-attr]
+    assert sel_after == sel_before + 1, (
+        f"picker selection did not advance ({sel_before} → {sel_after})"
+    )
+    await pilot.press("escape")
+    await pilot.pause()
+
+
 async def s_mouse_click_fills(app, pilot):
     """Click on a grid cell: cursor moves, cell toggles."""
     # Screen-position of cell (2, 3): gutter + cell_x*CELL_W, col_height + cell_y.
@@ -443,7 +472,9 @@ SCENARIOS: list[Scenario] = [
     Scenario("hint_corrects_mistake", s_hint_corrects_mistake),
     Scenario("new_random_swaps_puzzle", s_new_random_swaps_puzzle),
     Scenario("help_screen_opens_and_closes", s_help_screen_opens_and_closes),
+    Scenario("help_space_dismisses", s_help_space_dismisses),
     Scenario("picker_opens", s_picker_opens),
+    Scenario("picker_down_navigates", s_picker_down_navigates),
     Scenario("mouse_click_fills", s_mouse_click_fills),
     Scenario("mouse_right_click_crosses", s_mouse_right_click_crosses),
     Scenario("unknown_state_does_not_crash_render", s_unknown_state_does_not_crash_render),
