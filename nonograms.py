@@ -13,6 +13,8 @@ def main() -> None:
                    help="puzzle name (slug) from the pack; default is random")
     p.add_argument("--list", action="store_true",
                    help="list available puzzles and exit")
+    p.add_argument("--music", action="store_true",
+                   help="start background music on launch (toggle in-app with `m`)")
     args = p.parse_args()
 
     if args.list:
@@ -21,7 +23,7 @@ def main() -> None:
             print(f"{p.slug:<24}  {p.width:>2}x{p.height:<2}  {p.title}")
         return
 
-    run(args.puzzle)
+    run(args.puzzle, music=args.music)
 
 
 if __name__ == "__main__":

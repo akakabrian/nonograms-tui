@@ -21,7 +21,9 @@ from textual.widgets import Footer, Header, RichLog, Static
 
 from . import solver
 from .board import Board, CROSSED, EMPTY, FILLED
+from .music import MusicPlayer
 from .puzzles import Puzzle, find_puzzle, list_puzzles
+from .rules import rules_text
 
 # Each board cell is rendered as a 2-character slot so the grid reads as
 # square at the typical 2:1 terminal aspect ratio.
@@ -427,6 +429,35 @@ class ControlsPanel(Static):
 from textual.screen import ModalScreen
 
 
+class RulesScreen(ModalScreen[None]):
+    BINDINGS = [Binding("escape,q,r", "dismiss", show=False)]
+
+    DEFAULT_CSS = """
+    RulesScreen { align: center middle; background: #07190f 70%; }
+    #rules-box {
+        width: 80; max-height: 90%;
+        border: round #ffd45a;
+        background: #07190f;
+        padding: 1 2;
+    }
+    #rules-title { color: #ffd45a; text-style: bold; text-align: center; margin-bottom: 1; }
+    #rules-body { color: #efe8d1; }
+    #rules-foot { color: #8faa83; text-align: center; margin-top: 1; }
+    """
+
+    def __init__(self, text: str) -> None:
+        super().__init__()
+        self._text = text
+
+    def compose(self) -> ComposeResult:
+        from textual.containers import VerticalScroll
+        with Vertical(id="rules-box"):
+            yield Static("◆ Nonograms — rules ◆", id="rules-title")
+            with VerticalScroll():
+                yield Static(self._text, id="rules-body")
+            yield Static("[dim]Esc / r / q — close[/dim]", id="rules-foot")
+
+
 class HelpScreen(ModalScreen[None]):
     """Modal help screen. Dismiss with any key or click."""
 
@@ -536,13 +567,17 @@ class NonogramsApp(App):
         Binding("c", "clear_cell", "clear"),
         Binding("h", "hint", "hint"),
         Binding("u", "undo", "undo"),
-        Binding("r", "restart", "restart"),
+        Binding("R", "restart", "restart"),
+        Binding("r", "rules", "rules"),
+        Binding("m", "toggle_music", show=False),
         Binding("n", "new_random", "new"),
         Binding("L", "pick", "pick"),
     ]
 
-    def __init__(self, puzzle_slug: str | None = None) -> None:
+    def __init__(self, puzzle_slug: str | None = None,
+                 music: bool = False) -> None:
         super().__init__()
+        self.music = MusicPlayer(enabled=music)
         self.board_view: BoardView
         self.status_panel = StatusPanel()
         self.controls_panel = ControlsPanel()
@@ -601,6 +636,17 @@ class NonogramsApp(App):
         self.log_msg(f"Loaded [bold]{self.board.puzzle.title}[/] "
                      f"({self.board.puzzle.width}×{self.board.puzzle.height})")
         self.log_msg("[dim]press ? for help[/]", level="info")
+        self.music.start()
+
+    async def on_unmount(self) -> None:
+        self.music.stop()
+
+    def action_rules(self) -> None:
+        self.push_screen(RulesScreen(rules_text()))
+
+    def action_toggle_music(self) -> None:
+        playing = self.music.toggle()
+        self.flash("Music on." if playing else "Music off.")
         # 1-second timer for the live clock / progress panel.
         self.set_interval(1.0, self._tick_status)
 
@@ -810,8 +856,8 @@ class NonogramsApp(App):
         self._check_victory()
 
 
-def run(puzzle_slug: str | None = None) -> None:
-    app = NonogramsApp(puzzle_slug)
+def run(puzzle_slug: str | None = None, music: bool = False) -> None:
+    app = NonogramsApp(puzzle_slug, music=music)
     try:
         app.run()
     finally:
@@ -820,3 +866,4 @@ def run(puzzle_slug: str | None = None) -> None:
             "\033[?1000l\033[?1002l\033[?1003l\033[?1006l\033[?1015l\033[?25h"
         )
         sys.stdout.flush()
+        app.music.stop()
